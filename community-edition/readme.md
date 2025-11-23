@@ -1,3 +1,11 @@
+## If you are deploying chutvrc using k8s, check chutvrc-k8s-deploy-manual.md
+
+The following is the original README for Hubs Cloud Community Edition
+
+---
+
+---
+
 ![Hubs Cloud Community Edition](https://uploads-prod.reticulum.io/files/05884d13-e5e8-4f64-9aca-792aae6d7734.png)
 
 # Hubs Cloud Community Edition
@@ -149,12 +157,15 @@ gcloud auth login
 - Run `bash render_hcce.sh && sudo k3s kubectl apply -f hcce.yaml`
 
 #### Step 3: connect the ingress
+
 - find the vm's external ip
 - create a-records to the dns
 - makesure the required ports are exposed to the client
 
 ### example -- a "hello-world" instance with managed kubernetes on gcp
+
 ##### Step 1: make a kubernetes environment
+
 replace `hcce-gke-1` and `us-central1-a` with your desired name and zone, check [official doc](https://cloud.google.com/sdk/gcloud/reference/container/clusters/create) for more options
 
 ##### login gcp
@@ -178,6 +189,7 @@ gcloud container clusters get-credentials --region us-central1-a hcce-gke-1
 - Coming soon!
 
 ## Considerations for Production Environment
+
 - Infrastructure
   - Easy -- use managed kubernetes
   - Hard -- make it [production-ready](https://kubernetes.io/docs/setup/production-environment/)
@@ -201,4 +213,7 @@ gcloud container clusters get-credentials --region us-central1-a hcce-gke-1
     - Use spot instances for nodes to save money.
     - Develop and integrate automated testing scripts into the ops pipeline
   - Configure devops for deploying custom versions of Spoke, Hubs, and Reticulum
+
+```
+
 ```
