@@ -12,14 +12,21 @@ Select the prerequisites based on your intended deployment target.
 - **A Domain Name**: Required for Cloud/Azure (e.g., `myhub.com`). For local, we will simulate this with `hubs.local`.
 - **SMTP Server**: Required for login emails (e.g., Brevo, Gmail with App Password).
 
-### 1.2. Local Deployment Requirements (Mac)
+### 1.2. Local Deployment Requirements (Mac / Windows / Linux)
 
-1.  **Docker Desktop**: Install and enable Kubernetes in Settings.
+1.  **Docker Desktop**: Install and enable Kubernetes in Settings. (WSL2 backend recommended for Windows).
 2.  **Command Line Tools**:
-    ```
-    brew install kubectl mkcert
-    mkcert -install
-    ```
+    - **Mac (Homebrew):**
+      ```bash
+      brew install kubectl mkcert
+      mkcert -install
+      ```
+    - **Windows (Chocolatey):**
+      ```powershell
+      choco install kubernetes-cli mkcert
+      mkcert -install
+      ```
+    - **Linux:** Install `kubectl` and `mkcert` using your package manager.
 
 ### 1.3. Cloud Deployment Requirements (Azure)
 
@@ -38,10 +45,11 @@ We have prepared specific configuration templates for different scenarios. You m
 
 ### Option A: Deploying **Chutvrc** (Custom Version)
 
-- **For Local (Mac):**
-  ```
+- **For Local (Mac/Linux/Windows PowerShell):**
+  ```bash
   cp hcce-chutvrc-local.yam hcce.yam
   ```
+  _(For Windows Command Prompt: `copy hcce-chutvrc-local.yam hcce.yam`)_
 - **For Azure Cloud:**
   ```
   cp hcce-chutvrc.yam hcce.yam
@@ -49,10 +57,11 @@ We have prepared specific configuration templates for different scenarios. You m
 
 ### Option B: Deploying **Community Edition** (Standard CE)
 
-- **For Local (Mac):**
-  ```
+- **For Local (Mac/Linux/Windows PowerShell):**
+  ```bash
   cp hcce-ce-local.yam hcce.yam
   ```
+  _(For Windows Command Prompt: `copy hcce-ce-local.yam hcce.yam`)_
 - **For Azure Cloud:**
   ```
   cp hcce-ce.yam hcce.yam
@@ -84,10 +93,13 @@ We have prepared specific configuration templates for different scenarios. You m
 
 Follow the section corresponding to your choice.
 
-### Option A: Local Setup (Mac)
+### Option A: Local Setup (Mac / Windows / Linux)
 
 1.  **Configure Hosts File:**
-    Run `sudo nano /etc/hosts`.
+
+    - **Mac / Linux:** Run `sudo nano /etc/hosts`.
+    - **Windows:** Run Notepad as **Administrator** and open `C:\Windows\System32\drivers\etc\hosts`.
+
     Add the following lines:
 
     ```
