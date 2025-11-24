@@ -79,12 +79,18 @@
 - **`HUB_DOMAIN`**: `hubs.local`
 - **`ADM_EMAIL`**: あなたのメールアドレス
 - **`SMTP_*`**: 有効な SMTP 認証情報が必要です (ローカルでも必須)。
+  - `SMTP_SERVER="smtp.gmail.com"`
+  - `SMTP_PORT="587"`
+  - `SMTP_USER="your-gmail-address@gmail.com"`
+  - `SMTP_PASS="your-app-password"`
+    > **Gmail ユーザーへの注意:** Google アカウントで **2 段階認証プロセス** を有効にし、`SMTP_PASS` として使用するための **アプリ パスワード** を生成する必要があります。通常のログインパスワードは使用しないでください。
+    > 参照: [アプリ パスワードでログインする](https://support.google.com/mail/answer/185833)
 
 ### Azure デプロイの場合
 
 - **`HUB_DOMAIN`**: 実際のドメイン (例: `example.com`)
 - **`ADM_EMAIL`**: あなたのメールアドレス
-- **`SMTP_*`**: SMTP プロバイダーの詳細 (例: Brevo)
+- **`SMTP_*`**: SMTP プロバイダーの詳細 (例: Brevo または上記で説明した Gmail)
 - **`DB_PASS` / `DB_USER`**: セキュリティのため、デフォルトから変更してください。
 
 ---

@@ -79,12 +79,18 @@ We have prepared specific configuration templates for different scenarios. You m
 - **`HUB_DOMAIN`**: `hubs.local`.
 - **`ADM_EMAIL`**: Your email address.
 - **`SMTP_*`**: Valid SMTP credentials are required (even for local).
+  - `SMTP_SERVER="smtp.gmail.com"`
+  - `SMTP_PORT="587"`
+  - `SMTP_USER="your-gmail-address@gmail.com"`
+  - `SMTP_PASS="your-app-password"`
+    > **Note for Gmail Users:** You must enable **2-Step Verification** on your Google Account and then generate an **App Password** to use as your `SMTP_PASS`. Do not use your regular login password.
+    > See: [Sign in with App Passwords](https://support.google.com/mail/answer/185833)
 
 ### For Azure Deployment
 
 - **`HUB_DOMAIN`**: Your actual domain (e.g., `example.com`).
 - **`ADM_EMAIL`**: Your email address.
-- **`SMTP_*`**: Your SMTP provider details (e.g., Brevo).
+- **`SMTP_*`**: Your SMTP provider details (e.g., Brevo or Gmail as described above).
 - **`DB_PASS` / `DB_USER`**: Change these from defaults for security.
 
 ---
