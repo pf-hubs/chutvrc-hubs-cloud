@@ -152,6 +152,32 @@ Follow the section corresponding to your choice.
 
 5.  **Proceed to Part 5 (Deployment).**
 
+---
+
+## Part 4.5: Verify & Switch Kubernetes Context (Important)
+
+Before running any deployment commands, ensure `kubectl` is pointing to the correct cluster (Local Docker Desktop or Azure AKS). This prevents accidental deployment to the wrong environment.
+
+1.  **Check Current Context:**
+
+    ```bash
+    kubectl config current-context
+    ```
+
+    - **For Local:** Should say `docker-desktop` (or `minikube`, etc.).
+    - **For Azure:** Should say `HubsCluster` (or whatever you named it).
+
+2.  **Switch Context (If needed):**
+    List available contexts:
+    ```bash
+    kubectl config get-contexts
+    ```
+    Switch context:
+    ```bash
+    kubectl config use-context <context-name>
+    ```
+    _(e.g., `kubectl config use-context docker-desktop`)_
+
 ## Part 5: Deployment
 
 ### 5.1. Deploying to Local

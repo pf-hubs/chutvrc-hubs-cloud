@@ -152,6 +152,32 @@
 
 5.  **パート 5 (デプロイ) へ進んでください。**
 
+---
+
+## パート 4.5: Kubernetes コンテキストの確認と切り替え (重要)
+
+デプロイコマンドを実行する前に、`kubectl` が正しいクラスター (ローカルの Docker Desktop または Azure AKS) を指していることを確認してください。誤ったクラスターへのデプロイを防ぐために重要です。
+
+1.  **現在のコンテキストを確認:**
+
+    ```bash
+    kubectl config current-context
+    ```
+
+    - **ローカルの場合:** `docker-desktop` (または `minikube` など) と表示されるはずです。
+    - **Azure の場合:** `HubsCluster` (または作成したクラスター名) と表示されるはずです。
+
+2.  **コンテキストの切り替え (必要な場合):**
+    利用可能なコンテキストを一覧表示:
+    ```bash
+    kubectl config get-contexts
+    ```
+    コンテキストを切り替え:
+    ```bash
+    kubectl config use-context <context-name>
+    ```
+    _(例: `kubectl config use-context docker-desktop`)_
+
 ## パート 5: デプロイ
 
 ### 5.1. ローカルへのデプロイ
