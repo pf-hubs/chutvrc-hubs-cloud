@@ -113,9 +113,46 @@
 
 SSL の生成と適用を処理する提供済みのヘルパースクリプトを実行します:
 
-```bash
-chmod +x deploy-local.sh
-./deploy-local.sh
-```
+- **Mac / Linux:**
+  ```bash
+  chmod +x deploy-local.sh
+  ./deploy-local.sh
+  ```
+- **Windows:**
+  ```bash
+  ./deploy-local.sh
+  ```
 
 デプロイ後: ブラウザを完全に終了して SSL キャッシュをクリアし、https://hubs.local にアクセスしてください。
+
+---
+
+## 便利なコマンド
+
+デプロイメントの状態を確認したり、リソースを管理するための便利な `kubectl` コマンドをいくつか紹介します。
+
+### ポッドの状態を確認する
+
+`hcce` ネームスペースで実行されているすべてのポッドのリストと状態を表示します。
+
+```bash
+kubectl get pods -n hcce
+```
+
+### デプロイメントをスケールダウンする (一時停止)
+
+chutvrc/Hubs のすべてのコンポーネントを一時的に停止したい場合は、すべてのデプロイメントのレプリカ数を 0 にスケールダウンできます。
+
+```bash
+kubectl scale deployment --all -n hcce --replicas=0
+```
+
+### デプロイメントをスケールアップする (再開)
+
+サービスを再開するには、レプリカ数を 1 に戻すか、再度デプロイします。
+
+```bash
+kubectl scale deployment --all -n hcce --replicas=1
+# もしくは再びデプロイ
+./deploy-local.sh
+```
