@@ -1,18 +1,13 @@
-# Hubs (Chutvrc / CE) のローカル Kubernetes デプロイマニュアル
+# Chutvrc / Hubs Community Edition のローカル Kubernetes デプロイマニュアル
 
 このガイドでは、Mozilla Hubs (Community Edition または Chutvrc バージョン) を **ローカル Mac / Windows / Linux 環境** (Docker Desktop 使用) にデプロイする方法について説明します。
 
-## パート 1: 前提条件
+## ステップ 1: 事前準備
 
-### 1.1. 共通要件
-
-- **Git**: リポジトリをクローンするために必要です。
-- **SMTP サーバー**: ログインメールの送信に必要です (例: Brevo, アプリパスワードを使用した Gmail)。
-
-### 1.2. ツール要件
-
-1.  **Docker Desktop**: インストールし、設定で Kubernetes を有効にしてください。(Windows の場合は WSL2 バックエンドの使用を推奨)
-2.  **コマンドラインツール**:
+1.  **二段階認証付きのGmailアカウント**を用意し、**アプリ パスワード** を一つ生成してメモしておく
+    - 参照: [アプリ パスワードでログインする](https://support.google.com/mail/answer/185833)
+2.  **Docker Desktop**: インストールし、設定で Kubernetes を有効にしてください。(Windows の場合は WSL2 バックエンドの使用を推奨)
+3.  **コマンドラインツールのインストール**:
     - **Mac (Homebrew):**
       ```bash
       brew install kubectl mkcert
@@ -24,16 +19,26 @@
       mkcert -install
       ```
     - **Linux:** パッケージマネージャ (apt, yum 等) を使用して `kubectl` と `mkcert` をインストールしてください。
+4. **スクリプトを入手する**
+    - Gitでリポジトリをクローンする:
+      ```bash
+      git clone https://github.com/pf-hubs/chutvrc-hubs-cloud.git
+      ```
+    - もしくはDownload ZipでGitを介さずにダウンロードする
+5. `community-edition`フォルダーの中に移動:
+    ```bash
+    cd community-edition
+    ```
 
 ---
 
-## パート 2: デプロイテンプレートの選択
+## ステップ 2: デプロイテンプレートの選択
 
 シナリオごとに特定の構成テンプレートを用意しています。目的に合ったファイルの内容で、デフォルトの `hcce.yam` を置き換える必要があります。
 
 **`community-edition` フォルダ内のターミナルで、以下のいずれかのコマンドを 1 つ実行してください:**
 
-### オプション A: **Chutvrc** (カスタムバージョン) のデプロイ
+### オプション A: **Chutvrc** のデプロイ
 
 - **Mac/Linux/Windows PowerShell:**
   ```
@@ -41,7 +46,7 @@
   ```
   _(Windows コマンドプロンプトの場合は `copy hcce-chutvrc-local.yam hcce.yam`)_
 
-### オプション B: **Community Edition** (標準 CE) のデプロイ
+### オプション B: **Hubs Community Edition** のデプロイ
 
 - **Mac/Linux/Windows PowerShell:**
   ```
@@ -51,42 +56,37 @@
 
 ---
 
-## パート 3: `render_hcce.sh` の設定
+## ステップ 3: `render_hcce.sh` の設定
 
 1.  テキストエディタで `render_hcce.sh` を開きます。
 2.  以下の変数を設定します。
 
-- **`HUB_DOMAIN`**: `hubs.local`
-- **`ADM_EMAIL`**: あなたのメールアドレス
-- **`SMTP_*`**: 有効な SMTP 認証情報が必要です (ローカルでも必須)。
-  - `SMTP_SERVER="smtp.gmail.com"`
-  - `SMTP_PORT="587"`
-  - `SMTP_USER="your-gmail-address@gmail.com"`
-  - `SMTP_PASS="your-app-password"`
-    > **Gmail ユーザーへの注意:** Google アカウントで **2 段階認証プロセス** を有効にし、`SMTP_PASS` として使用するための **アプリ パスワード** を生成する必要があります。通常のログインパスワードは使用しないでください。
-    > 参照: [アプリ パスワードでログインする](https://support.google.com/mail/answer/185833)
+- `HUB_DOMAIN`: `hubs.local`
+- `ADM_EMAIL`: あなたのメールアドレス
+- `SMTP_SERVER="smtp.gmail.com"`
+- `SMTP_PORT="587"`
+- `SMTP_USER="二段階認証付きのGmailアカウントのメールアドレス@gmail.com"`
+- `SMTP_PASS="そのGmailアカウントのアプリパスワード(16桁)"`
 
 ---
 
-## パート 4: 環境セットアップ (Hosts ファイル)
+## ステップ 4: Hosts ファイルの設定
 
-1.  **Hosts ファイルの設定:**
+- **Mac / Linux:** `sudo nano /etc/hosts` を実行します。
+- **Windows:** メモ帳を**管理者として実行**し、`C:\Windows\System32\drivers\etc\hosts` を開きます。
 
-    - **Mac / Linux:** `sudo nano /etc/hosts` を実行します。
-    - **Windows:** メモ帳を**管理者として実行**し、`C:\Windows\System32\drivers\etc\hosts` を開きます。
+以下の行を追加してください:
 
-    以下の行を追加してください:
-
-    ```
-    127.0.0.1   hubs.local
-    127.0.0.1   assets.hubs.local
-    127.0.0.1   cors.hubs.local
-    127.0.0.1   stream.hubs.local
-    ```
+```
+127.0.0.1   hubs.local
+127.0.0.1   assets.hubs.local
+127.0.0.1   cors.hubs.local
+127.0.0.1   stream.hubs.local
+```
 
 ---
 
-## パート 5: Kubernetes コンテキストの確認
+## ステップ 5: Kubernetes コンテキストの確認
 
 デプロイコマンドを実行する前に、`kubectl` がローカルクラスターを指していることを確認してください。
 
@@ -96,7 +96,7 @@
     kubectl config current-context
     ```
 
-    `docker-desktop` (または `minikube` など) と表示されるはずです。
+    `* docker-desktop` (または `* minikube` など) と表示されるはずです。
 
 2.  **コンテキストの切り替え (必要な場合):**
     ```bash
@@ -105,7 +105,7 @@
 
 ---
 
-## パート 6: デプロイ実行
+## ステップ 6: デプロイ実行
 
 SSL の生成と適用を処理する提供済みのヘルパースクリプトを実行します:
 
@@ -115,10 +115,3 @@ chmod +x deploy-local.sh
 ```
 
 デプロイ後: ブラウザを完全に終了して SSL キャッシュをクリアし、https://hubs.local にアクセスしてください。
-
----
-
-## トラブルシューティング
-
-- **503 エラー / Reticulum のクラッシュ:** 通常はボリュームマウントの問題です。`hcce.yam` から `mountPropagation: HostToContainer` が削除されていることを確認してください (パート 2 で提供されたローカルテンプレートでは既に対処されています)。
-- **メールリンクが送信されない:** `render_hcce.sh` の `SMTP` 設定を確認してください。`hcce.yam` 内の "From" アドレスが、認証された SMTP ユーザーと一致していることを確認してください。
