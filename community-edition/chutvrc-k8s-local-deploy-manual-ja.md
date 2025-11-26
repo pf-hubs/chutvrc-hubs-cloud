@@ -6,18 +6,22 @@
 
 1.  **二段階認証付きのGmailアカウント**を用意し、**アプリ パスワード** を一つ生成してメモしておく
     - 参照: [アプリ パスワードでログインする](https://support.google.com/mail/answer/185833)
-2.  **Docker Desktop**: インストールし、設定で Kubernetes を有効にしてください。(Windows の場合は WSL2 バックエンドの使用を推奨)
+2.  **Docker Desktop**: [インストール](https://www.docker.com/products/docker-desktop/)し、設定で Kubernetes を有効にしてください。(Windows の場合は WSL2 バックエンドの使用を推奨)
+    <img width="989" height="564" alt="image" src="https://github.com/user-attachments/assets/db9712f8-3471-4e26-a758-599b4008b400" />
 3.  **コマンドラインツールのインストール**:
-    - **Mac (Homebrew):**
+    - **Mac:** ターミナルを開き、[Homebrew](https://brew.sh/)でインストールする
       ```bash
       brew install kubectl mkcert
       mkcert -install
       ```
-    - **Windows (Chocolatey):**
-      ```powershell
-      choco install kubernetes-cli mkcert
+    - **Windows:**
+        1. [Chocolatelyをインストール](https://chocolatey.org/install) （メールアドレスの登録は不要）
+        2. Powershellを開き、このコマンドを実行してmkcertをインストールする：
+      ```
+      choco install mkcert
       mkcert -install
       ```
+        3. kubectlはDocker Desktopインストール時に自動的に追加されるため、追加のインストールは不要。インストールされていない場合は[こちら](https://codeeaze.com/how-to-install-kubectl-on-windows-10-11-step-by-step-guide)を参照してインストールする
     - **Linux:** パッケージマネージャ (apt, yum 等) を使用して `kubectl` と `mkcert` をインストールしてください。
 4. **スクリプトを入手する**
     - Gitでリポジトリをクローンする:
@@ -27,7 +31,7 @@
     - もしくはDownload ZipでGitを介さずにダウンロードする
 5. `community-edition`フォルダーの中に移動:
     ```bash
-    cd community-edition
+    cd chutvrc-hubs-cloud/community-edition
     ```
 
 ---
