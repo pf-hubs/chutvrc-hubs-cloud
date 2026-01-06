@@ -1091,17 +1091,31 @@ spec:
       labels:
         app: dialog
     spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       containers:
       - name: dialog
         image: chutvrc.azurecr.io/dialog:latest
         imagePullPolicy: Always
+        command: ["/bin/bash", "-c"]
+        args:
+          - |
+            echo -e $(echo -e ${perms_key//\n/n}) > /app/certs/perms.pub.pem
+            head -3 /app/certs/perms.pub.pem
+            export INTERACTIVE=nope
+            cd /app
+            DEBUG='*INFO* *WARN* *ERROR*' node index.js
         ports:
         - containerPort: 4443
         env:
         - name: MEDIASOUP_LISTEN_IP
           value: "0.0.0.0"
         - name: MEDIASOUP_ANNOUNCED_IP
-          value: "127.0.0.1"
+          value: "$LOCAL_IP"
+        - name: MEDIASOUP_MIN_PORT
+          value: "40000"
+        - name: MEDIASOUP_MAX_PORT
+          value: "49999"
         - name: perms_key
           valueFrom:
             secretKeyRef:

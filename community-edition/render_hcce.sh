@@ -43,7 +43,22 @@ export PHX_KEY="changeMe"
 export SKETCHFAB_API_KEY="?"
 export TENOR_API_KEY="?"
 
+### Local IP for WebRTC (local deployment only)
+# Auto-detect local IP address for Mac
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  # Mac OS X - try to get the primary interface IP
+  export LOCAL_IP=$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || echo "127.0.0.1")
+elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  # Linux - get IP from primary interface
+  export LOCAL_IP=$(hostname -I | awk '{print $1}')
+else
+  # Windows or other - default to localhost
+  export LOCAL_IP="127.0.0.1"
+fi
 
+echo "Detected LOCAL_IP: $LOCAL_IP"
+echo "For local deployment, ensure this IP is reachable from your client devices."
+echo "If this IP is incorrect, set it manually: export LOCAL_IP=<your-local-ip>"
 
 ### dev only keys
 # export PERMS_KEY='-----BEGIN PRIVATE KEY-----\\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCerz7tPxgtwm2M\\nSFVrh+0bYzLiIo/s83xuCreKL5feMnJWoV3dhjNRhvZCsi5yNdDVZQzfe8t2dmse\\nujxtP1O1Pmg5alEksGzEHjLtxboVn4lRhkkQ2L1Rle2Cr0neLUjLfV0ek+agxxWR\\n62pNUjSxDua+gW/Uq8VveEMqLQGIRGFiAjI89cXdthW8imV32NyrIPce9WKyL3Us\\nLPXUmZwzOTV9/0U14SJm848W0DDckBQECpEG0MTmLn29J4Sq4EEky6QUD7GPkIGT\\nHRhFRQEc4lgMH7Rgo1zH1HbwUCgG9bH4iPteViBrPC3SnSVsXrUO3alH1Gv56Zpe\\nQs6FHm7HAgMBAAECggEASh+IIGBJlg5tB4s+Q3WB3zouKY2Fd2ShKfHdnDHxGbys\\nxiSoaPLoA9wsKil7IqRawWNraPU1rEdScE8ELO/Y1R+qpa8w6hdzJwUIOyMScklM\\nZoV4meL0RCjpghMJSTwT9eHAXqktoMp+G+RAio+sx0wzoqdpqoj2N8SQcyIExjaW\\nWK3Na0D0ARWX5e6bmgJNoOcaJjW9eKX/m/nRgnUkJG7lNic1szXhSHJY4j/mLn+E\\nH1zIaZDVpgXA6RG8YEO9QHfJTAFsEvEO2shjVlswOBD9++FNsM69fLUE6THBugJx\\n5PtM8LdjXiFHO5G8z7BmBZWeY/s+dyfKL59UB40yKQKBgQDTUQzWnLol3jEmtuRh\\nSfJersNDNtblyX2v7uXPqUkH1yY7+GQKCh9R4to8zBXPp9FMB6tiCZ2+syP9ZJK3\\nIQZiqHpdR1zZOFHDbDr63hDuNbkEkACRDA6zhssyVFWeYSadhaS5lFA1CjSrSDZ9\\np+NRSFfpLrJQQ7rdpbNNTJ0SdQKBgQDAPSCw/Uutwy3bA8EdVjdxm45a6SpSzyBe\\nxjwXAXjQjmQG0Vu+m8rgE2jUNucIGcdhh6yp46Q95QHuLhg09P+QD4vw8aeYzuK9\\nnjaqrB0ynH3C7rOgHTWRs51JaFW7IVziBygLMukkvb0Qc+5qrRlKyeD6Bz2ZrAuN\\nr+BDktwcywKBgQCcDpwrlh0GwDuOOr0YeDLM58V+Su6TTqVKm2QOYxdy+dnbqgm/\\nPFB6+cxv38wvyeCQhI113mInpkZq6K5NHc+IZqHPZ1dTd/syFijMgdkBAp27l9lD\\nRSNKQ76mUY/VYivRYxQOlVBSi1HwOGk9jRIcQg/iPkEjc5F6BNgQuwa4zQKBgAgG\\nhUbeTDqE23U5QuamosnrZJYHBe1PGFrci8WqGhEa4LIoK1xZxK52IPo7EIoWCWzY\\n7SxqhIDQ/rOi2P/c+o5ZF86HSCfo+y5PXJjjdpSWU+m/bWBR19qtVPOrl2ioi+gj\\nxFgzV+hgw3PcYyew8k1dADdv9fJkbFcN8J7hkq7hAoGAWWCIX0N8K/u6Qy7YYgTg\\nmNJqXusFDQFGizM6A3mfziIpMi9vsUDNY4D7VHwIKStbei78Jf/Em3MyxxNAb78z\\nW0hs6TeiTgbZQFBcktrDoDGQ34kZ/1jIFS1c2M/VfydvAdo36aB03SU6G0oWIlYk\\nxBclLooIqHBPs/bnYHu4xeM=\\n-----END PRIVATE KEY-----\\n'
@@ -61,4 +76,14 @@ openssl req -x509 -newkey rsa:2048 -sha256 -days 36500 -nodes -keyout key.pem -o
 export initCert=$(base64 -i cert.pem | tr -d '\n')
 export initKey=$(base64 -i key.pem | tr -d '\n')
 
-envsubst < "hcce.yam" > "hcce.yaml"
+# Detect which template to use based on hcce.yam
+if [ -f "hcce.yam" ]; then
+  echo "Using existing hcce.yam as template"
+  envsubst < "hcce.yam" > "hcce.yaml"
+else
+  echo "ERROR: hcce.yam not found!"
+  echo "Please copy one of the templates first:"
+  echo "  For local:  cp hcce-chutvrc-local.yam hcce.yam"
+  echo "  For AKS:    cp hcce-chutvrc.yam hcce.yam"
+  exit 1
+fi
