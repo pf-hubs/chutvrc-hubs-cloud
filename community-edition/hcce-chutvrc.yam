@@ -1097,40 +1097,9 @@ spec:
       - name: dialog
         image: chutvrc.azurecr.io/dialog:latest
         imagePullPolicy: Always
-        command: ["/bin/bash", "-c"]
-        args:
-          - |
-            echo -e $(echo -e ${perms_key//\n/n}) > /app/certs/perms.pub.pem
-            head -3 /app/certs/perms.pub.pem
-
-            # Detect public IP for cloud environment
-            # Try cloud's instance metadata service first
-            CLOUD_PUB_IP=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance/network/interface/0/ipv4/ipAddress/0/publicIpAddress?api-version=2021-02-01&format=text" 2>/dev/null)
-
-            # If not set via environment variable and instance metadata worked, use it
-            if [ -z "$MEDIASOUP_ANNOUNCED_IP" ] && [ -n "$CLOUD_PUB_IP" ]; then
-              export MEDIASOUP_ANNOUNCED_IP="$CLOUD_PUB_IP"
-              echo "Using instance metadata public IP: $MEDIASOUP_ANNOUNCED_IP"
-            # Otherwise fall back to ipinfo.io
-            elif [ -z "$MEDIASOUP_ANNOUNCED_IP" ]; then
-              export MEDIASOUP_ANNOUNCED_IP=$(curl -s https://ipinfo.io/ip)
-              echo "Using ipinfo.io public IP: $MEDIASOUP_ANNOUNCED_IP"
-            else
-              echo "Using environment variable MEDIASOUP_ANNOUNCED_IP: $MEDIASOUP_ANNOUNCED_IP"
-            fi
-
-            export INTERACTIVE=nope
-            cd /app
-            DEBUG='*INFO* *WARN* *ERROR*' node index.js
         ports:
         - containerPort: 4443
         env:
-        - name: MEDIASOUP_LISTEN_IP
-          value: "0.0.0.0"
-        - name: MEDIASOUP_MIN_PORT
-          value: "40000"
-        - name: MEDIASOUP_MAX_PORT
-          value: "49999"
         - name: perms_key
           valueFrom:
             secretKeyRef:
