@@ -15,6 +15,23 @@ Select the prerequisites based on your intended deployment target.
 ### 1.2. Local Deployment Requirements (Mac / Windows / Linux)
 
 1.  **Docker Desktop**: Install and enable Kubernetes in Settings. (WSL2 backend recommended for Windows).
+
+#### Windows Users: WSL vs Native PowerShell
+
+If you're on Windows, you have two options for running the deployment scripts:
+
+| Aspect | Native Windows (PowerShell/Chocolatey) | WSL (Windows Subsystem for Linux) |
+|--------|---------------------------------------|-----------------------------------|
+| **Setup complexity** | Simpler - uses Windows-native tools | Requires WSL2 installation |
+| **Script compatibility** | May need script modifications | Native bash scripts work as-is |
+| **Recommended for** | Users familiar with Windows tools | Users comfortable with Linux/bash |
+| **Docker integration** | Docker Desktop with Windows containers | Docker Desktop with WSL2 backend |
+| **mkcert CA trust** | Automatic for Windows browsers | Requires manual CA import to Windows |
+
+**Recommendation:**
+- If you're comfortable with Linux/bash, use **WSL** - the deployment scripts are written for bash and will work without modification.
+- If you prefer Windows-native tools, use **PowerShell/Chocolatey** but note you may need to adjust some bash-specific commands.
+
 2.  **Command Line Tools**:
     - **Mac (Homebrew):**
       ```bash
@@ -27,6 +44,49 @@ Select the prerequisites based on your intended deployment target.
       mkcert -install
       ```
     - **Linux:** Install `kubectl` and `mkcert` using your package manager.
+    - **WSL (Windows Subsystem for Linux):**
+
+      **Step 1: Install WSL2 (if not already installed)**
+
+      Open PowerShell as Administrator and run:
+      ```powershell
+      wsl --install
+      ```
+      This installs WSL2 with Ubuntu by default. Restart your computer when prompted.
+
+      After restart, open "Ubuntu" from the Start menu to complete the setup (create username/password).
+
+      **Step 2: Enable Docker Desktop WSL2 Integration**
+
+      1. Open Docker Desktop Settings
+      2. Go to "Resources" → "WSL Integration"
+      3. Enable integration with your Ubuntu distribution
+      4. Click "Apply & Restart"
+
+      **Step 3: Install tools in WSL**
+
+      Open Ubuntu terminal and run:
+      ```bash
+      # Install kubectl
+      sudo apt update && sudo apt install -y kubectl
+      # Install mkcert
+      sudo apt install -y libnss3-tools
+      curl -JLO "https://github.com/FiloSottile/mkcert/releases/download/v1.4.4/mkcert-v1.4.4-linux-amd64"
+      sudo mv mkcert-v1.4.4-linux-amd64 /usr/local/bin/mkcert
+      sudo chmod +x /usr/local/bin/mkcert
+      mkcert -install
+      ```
+
+      > **Important for WSL:** After running `mkcert -install`, you must also install the CA certificate in Windows for browsers to trust it:
+      > 1. Find the CA location: `mkcert -CAROOT`
+      > 2. Open that path in Windows Explorer: `explorer.exe "$(mkcert -CAROOT)"`
+      > 3. Double-click `rootCA.pem` and install it to "Trusted Root Certification Authorities"
+
+      > **Note:** The render script requires Node.js and pem-jwk. Install with:
+      > ```bash
+      > sudo apt install -y nodejs npm
+      > sudo npm install -g pem-jwk
+      > ```
 
 ### 1.3. Cloud Deployment Requirements (Azure)
 
@@ -105,6 +165,11 @@ Follow the section corresponding to your choice.
 
     - **Mac / Linux:** Run `sudo nano /etc/hosts`.
     - **Windows:** Run Notepad as **Administrator** and open `C:\Windows\System32\drivers\etc\hosts`.
+    - **WSL Users:** Edit the **Windows** hosts file (not `/etc/hosts` in WSL) since browsers run on Windows. You can open it from WSL terminal:
+      ```bash
+      # Run PowerShell as admin from WSL
+      powershell.exe -Command "Start-Process notepad 'C:\Windows\System32\drivers\etc\hosts' -Verb RunAs"
+      ```
 
     Add the following lines:
 
@@ -185,6 +250,16 @@ Before running any deployment commands, ensure `kubectl` is pointing to the corr
     _(e.g., `kubectl config use-context docker-desktop`)_
 
 ## Part 5: Deployment
+
+> **Note for Linux/WSL Users:** The `render_hcce.sh` script uses macOS-specific `base64 -i` syntax. Before running, edit the script and change:
+> ```bash
+> # Change these lines:
+> export initCert=$(base64 -i cert.pem | tr -d '\n')
+> export initKey=$(base64 -i key.pem | tr -d '\n')
+> # To:
+> export initCert=$(base64 cert.pem | tr -d '\n')
+> export initKey=$(base64 key.pem | tr -d '\n')
+> ```
 
 ### 5.1. Deploying to Local
 

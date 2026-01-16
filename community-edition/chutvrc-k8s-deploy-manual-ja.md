@@ -15,6 +15,23 @@
 ### 1.2. ローカルデプロイ要件 (Mac / Windows / Linux)
 
 1.  **Docker Desktop**: インストールし、設定で Kubernetes を有効にしてください。(Windows の場合は WSL2 バックエンドの使用を推奨)
+
+#### Windows ユーザー: WSL と ネイティブ PowerShell の比較
+
+Windows をお使いの場合、デプロイスクリプトを実行するには 2 つの方法があります:
+
+| 観点 | ネイティブ Windows (PowerShell/Chocolatey) | WSL (Windows Subsystem for Linux) |
+|------|-------------------------------------------|-----------------------------------|
+| **セットアップの複雑さ** | シンプル - Windows ネイティブツールを使用 | WSL2 のインストールが必要 |
+| **スクリプト互換性** | スクリプトの修正が必要な場合あり | ネイティブ bash スクリプトがそのまま動作 |
+| **推奨対象** | Windows ツールに慣れているユーザー | Linux/bash に慣れているユーザー |
+| **Docker 統合** | Docker Desktop (Windows コンテナ) | Docker Desktop (WSL2 バックエンド) |
+| **mkcert CA 信頼** | Windows ブラウザに自動適用 | Windows への手動 CA インポートが必要 |
+
+**推奨:**
+- Linux/bash に慣れている場合は **WSL** を使用してください - デプロイスクリプトは bash 用に書かれており、修正なしで動作します。
+- Windows ネイティブツールを好む場合は **PowerShell/Chocolatey** を使用してください。ただし、bash 固有のコマンドを調整する必要がある場合があります。
+
 2.  **コマンドラインツール**:
     - **Mac (Homebrew):**
       ```bash
@@ -27,6 +44,49 @@
       mkcert -install
       ```
     - **Linux:** パッケージマネージャ (apt, yum 等) を使用して `kubectl` と `mkcert` をインストールしてください。
+    - **WSL (Windows Subsystem for Linux):**
+
+      **ステップ 1: WSL2 のインストール (未インストールの場合)**
+
+      管理者として PowerShell を開き、以下を実行:
+      ```powershell
+      wsl --install
+      ```
+      これにより、デフォルトで Ubuntu を含む WSL2 がインストールされます。プロンプトが表示されたらコンピュータを再起動してください。
+
+      再起動後、スタートメニューから「Ubuntu」を開いてセットアップを完了します (ユーザー名/パスワードを作成)。
+
+      **ステップ 2: Docker Desktop の WSL2 統合を有効化**
+
+      1. Docker Desktop の設定を開く
+      2. 「Resources」→「WSL Integration」に移動
+      3. Ubuntu ディストリビューションとの統合を有効化
+      4. 「Apply & Restart」をクリック
+
+      **ステップ 3: WSL 内でツールをインストール**
+
+      Ubuntu ターミナルを開いて以下を実行:
+      ```bash
+      # kubectl のインストール
+      sudo apt update && sudo apt install -y kubectl
+      # mkcert のインストール
+      sudo apt install -y libnss3-tools
+      curl -JLO "https://github.com/FiloSottile/mkcert/releases/download/v1.4.4/mkcert-v1.4.4-linux-amd64"
+      sudo mv mkcert-v1.4.4-linux-amd64 /usr/local/bin/mkcert
+      sudo chmod +x /usr/local/bin/mkcert
+      mkcert -install
+      ```
+
+      > **WSL ユーザーへの重要な注意:** `mkcert -install` を実行した後、ブラウザが証明書を信頼するように、Windows にも CA 証明書をインストールする必要があります:
+      > 1. CA の場所を確認: `mkcert -CAROOT`
+      > 2. Windows エクスプローラーでそのパスを開く: `explorer.exe "$(mkcert -CAROOT)"`
+      > 3. `rootCA.pem` をダブルクリックして「信頼されたルート証明機関」にインストール
+
+      > **注意:** render スクリプトには Node.js と pem-jwk が必要です。以下でインストールしてください:
+      > ```bash
+      > sudo apt install -y nodejs npm
+      > sudo npm install -g pem-jwk
+      > ```
 
 ### 1.3. クラウドデプロイ要件 (Azure)
 
@@ -105,6 +165,11 @@
 
     - **Mac / Linux:** `sudo nano /etc/hosts` を実行します。
     - **Windows:** メモ帳を**管理者として実行**し、`C:\Windows\System32\drivers\etc\hosts` を開きます。
+    - **WSL ユーザー:** ブラウザは Windows 上で動作するため、WSL の `/etc/hosts` ではなく **Windows** の hosts ファイルを編集してください。WSL ターミナルから開くには:
+      ```bash
+      # WSL から管理者として PowerShell を実行
+      powershell.exe -Command "Start-Process notepad 'C:\Windows\System32\drivers\etc\hosts' -Verb RunAs"
+      ```
 
     以下の行を追加してください:
 
@@ -185,6 +250,16 @@
     _(例: `kubectl config use-context docker-desktop`)_
 
 ## パート 5: デプロイ
+
+> **Linux/WSL ユーザーへの注意:** `render_hcce.sh` スクリプトは macOS 固有の `base64 -i` 構文を使用しています。実行前にスクリプトを編集して以下を変更してください:
+> ```bash
+> # 以下の行を:
+> export initCert=$(base64 -i cert.pem | tr -d '\n')
+> export initKey=$(base64 -i key.pem | tr -d '\n')
+> # 以下に変更:
+> export initCert=$(base64 cert.pem | tr -d '\n')
+> export initKey=$(base64 key.pem | tr -d '\n')
+> ```
 
 ### 5.1. ローカルへのデプロイ
 
