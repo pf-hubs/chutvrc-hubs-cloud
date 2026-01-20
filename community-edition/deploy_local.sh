@@ -1,10 +1,19 @@
 # This script redeploys the local HCCE instance with SSL certificates.
 
-# --- Step 1: Render the hcce.yaml template ---
+# --- Step 1: Generate SSL certificates if they don't exist ---
+if [ ! -f "hubs.local+3.pem" ] || [ ! -f "hubs.local+3-key.pem" ]; then
+    echo ">>> Generating local SSL certificates with mkcert..."
+    mkcert hubs.local assets.hubs.local cors.hubs.local stream.hubs.local
+    echo ">>> Certificates generated: hubs.local+3.pem, hubs.local+3-key.pem"
+else
+    echo ">>> SSL certificates already exist, skipping generation."
+fi
+
+# --- Step 2: Render the hcce.yaml template ---
 echo ">>> Rendering hcce.yaml..."
 bash render_hcce.sh
 
-# --- Step 2: Apply the configuration to Kubernetes ---
+# --- Step 3: Apply the configuration to Kubernetes ---
 echo ">>> Applying hcce.yaml to cluster..."
 kubectl apply -f hcce.yaml -n hcce
 
@@ -17,11 +26,11 @@ if ! kubectl wait --for=condition=Available deployment --all -n hcce --timeout=3
 fi
 echo ">>> All deployments are ready!"
 
-# --- Step 3: Delete the old certificate secret ---
+# --- Step 4: Delete the old certificate secret ---
 echo ">>> Deleting old cert-hubs.local secret (if it exists)..."
 kubectl delete secret tls cert-hubs.local -n hcce --ignore-not-found=true
 
-# --- Step 4: Create the new secret from your .pem files ---
+# --- Step 5: Create the new secret from your .pem files ---
 echo ">>> Creating new cert-hubs.local secret..."
 kubectl create secret tls cert-hubs.local \
   --key="hubs.local+3-key.pem" \

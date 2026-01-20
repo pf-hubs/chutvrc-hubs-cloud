@@ -61,7 +61,7 @@ If you're on Windows, you have two options for running the deployment scripts:
       1. Open Docker Desktop Settings
       2. Go to "Resources" → "WSL Integration"
       3. Enable integration with your Ubuntu distribution
-      4. Click "Apply & Restart"
+      4. Click "Apply"
 
       **Step 3: Install tools in WSL**
 
@@ -75,18 +75,16 @@ If you're on Windows, you have two options for running the deployment scripts:
       sudo mv mkcert-v1.4.4-linux-amd64 /usr/local/bin/mkcert
       sudo chmod +x /usr/local/bin/mkcert
       mkcert -install
+      # The render script requires Node.js and pem-jwk. Install with:
+      sudo apt install -y nodejs npm
+      sudo npm install -g pem-jwk
       ```
 
       > **Important for WSL:** After running `mkcert -install`, you must also install the CA certificate in Windows for browsers to trust it:
       > 1. Find the CA location: `mkcert -CAROOT`
-      > 2. Open that path in Windows Explorer: `explorer.exe "$(mkcert -CAROOT)"`
-      > 3. Double-click `rootCA.pem` and install it to "Trusted Root Certification Authorities"
-
-      > **Note:** The render script requires Node.js and pem-jwk. Install with:
-      > ```bash
-      > sudo apt install -y nodejs npm
-      > sudo npm install -g pem-jwk
-      > ```
+      > 2. Move to that path and open it in Windows Explorer: `cd $(mkcert -CAROOT) && explorer.exe .`, and then copy the file path of the file `rootCA.pem`.
+      >   - The path may look like this: `\\wsl.localhost\Ubuntu\home\your_wsl_user_name\.local\share\mkcert\rootCA.pem`
+      > 3. Press `Win+R`, type `certmgr.msc` and press Enter. Navigate to "Trusted Root Certification Authorities" > "Certificates", right-click > "All Tasks" > "Import", and follow the wizard to import `rootCA.pem`. When you are asked to browse the file, use the copied file path.
 
 ### 1.3. Cloud Deployment Requirements (Azure)
 
@@ -266,8 +264,8 @@ Before running any deployment commands, ensure `kubectl` is pointing to the corr
 Run the provided helper script which handles SSL generation and application:
 
 ```
-chmod +x deploy-local.sh
-./deploy-local.sh
+chmod +x deploy_local.sh
+./deploy_local.sh
 ```
 
 After deploy: Quit your browser completely to clear SSL cache, then visit https://hubs.local.
