@@ -1,12 +1,82 @@
 # Deploy Hubs (Chutvrc / CE) to Kubernetes: Linux Manual
 
+## Choose Your Setup Method
+
+| Option | Best For | Description                                 |
+|--------|----------|---------------------------------------------|
+| **[1. Quick Setup](#option-1-quick-setup-recommended-for-beginners)** | Beginners | Automated script handles most steps for you |
+| **[2. Manual Setup](#option-2-manual-setup-instructions)** | Advanced users | Full control over each step                 |
+
+---
+
+## Option 1: Quick Setup (Recommended for Beginners)
+
+### Before You Start: Install Docker and Kubernetes
+
+The setup script cannot install Docker for you. Please set up Docker and Kubernetes first.
+
+**Option A: Docker Desktop for Linux (Easiest)**
+
+1. Go to https://www.docker.com/products/docker-desktop/
+2. Download the `.deb` (Ubuntu/Debian) or `.rpm` (Fedora) package
+3. Install the package:
+   - Ubuntu/Debian: `sudo apt install ./docker-desktop-<version>.deb`
+   - Fedora: `sudo dnf install ./docker-desktop-<version>.rpm`
+4. Open Docker Desktop from your applications menu
+5. Go to **Settings** > **Kubernetes**
+6. Check **"Enable Kubernetes"**
+7. Click **"Apply & Restart"**
+8. Wait for Kubernetes to show green/running status
+
+**Option B: Docker Engine + minikube**
+
+1. Install Docker Engine: https://docs.docker.com/engine/install/
+2. Install minikube:
+   ```bash
+   curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+   sudo install minikube-linux-amd64 /usr/local/bin/minikube
+   ```
+3. Start minikube:
+   ```bash
+   minikube start
+   ```
+
+### Run the Quick Setup Script
+
+Open a terminal and run these commands:
+
+```bash
+# Download the code (skip if you already have it)
+cd ~
+git clone https://github.com/pf-hubs/chutvrc-hubs-cloud.git
+
+# Go to the community-edition folder
+cd chutvrc-hubs-cloud/community-edition
+
+# Run the setup script
+chmod +x setup_linux.sh && ./setup_linux.sh
+```
+
+The script will automatically:
+- Install required tools (kubectl, mkcert, Node.js) based on your distribution
+- Configure your hosts file
+- Set up SSL certificates
+- Guide you through SMTP configuration
+- Deploy Hubs locally
+
+If you prefer to follow the manual steps, continue reading below.
+
+---
+
+## Option 2: Manual Setup Instructions
+
 This guide covers deploying Mozilla Hubs (Community Edition or Chutvrc version) to either a **Local Linux Environment** (using Docker with Kubernetes) or **Microsoft Azure AKS**.
 
 > **New to the terminal?** Don't worry! This guide will walk you through every step. Commands you need to type are shown in gray boxes. Just copy and paste them into your terminal.
 
 ---
 
-## Part 1: Prerequisites
+## Step 1: Prerequisites
 
 ### 1.1. Opening the Terminal
 
@@ -199,7 +269,7 @@ kind create cluster
 
 ---
 
-## Part 2: Clone the Repository
+## Step 2: Clone the Repository
 
 Now let's download the Hubs code to your computer.
 
@@ -234,7 +304,7 @@ ls
 
 ---
 
-## Part 3: Select Your Deployment Template
+## Step 3: Select Your Deployment Template
 
 We have different configuration files for different scenarios.
 
@@ -266,7 +336,7 @@ cp hcce-ce.yam hcce.yam
 
 ---
 
-## Part 4: Configure Settings
+## Step 4: Configure Settings
 
 ### 4.1. Fix the Base64 Command (Important for Linux)
 
@@ -335,7 +405,7 @@ Also update:
 
 ---
 
-## Part 5: Environment Setup
+## Step 5: Environment Setup
 
 ### Option A: Local Setup
 
@@ -362,7 +432,7 @@ Save and exit:
 2. Press `Enter`
 3. Press `Ctrl + X`
 
-#### 5.2. Skip to Part 6 (Deployment)
+#### 5.2. Skip to Step 6 (Deployment)
 
 ### Option B: Azure AKS Setup
 
@@ -436,7 +506,7 @@ az aks get-credentials --resource-group HubsResourceGroup --name HubsCluster
 
 ---
 
-## Part 5.5: Verify Kubernetes Context
+## Step 5.5: Verify Kubernetes Context
 
 Before deploying, make sure kubectl is pointing to the right cluster.
 
@@ -463,7 +533,7 @@ kubectl config use-context docker-desktop
 
 ---
 
-## Part 6: Deploy
+## Step 6: Deploy
 
 ### 6.1. Deploying to Local
 
@@ -532,12 +602,12 @@ kubectl get svc -n hcce
 
 ---
 
-## Part 7: Troubleshooting
+## Step 7: Troubleshooting
 
 ### Common Problems
 
 **"command not found" errors**
-- Make sure you installed all the tools in Part 1
+- Make sure you installed all the tools in Step 1
 - Try closing and reopening the terminal
 - Check if the command is in your PATH: `which <command>`
 
@@ -558,7 +628,7 @@ kubectl get svc -n hcce
 - For Gmail, make sure you're using an App Password, not your regular password
 
 **"base64: invalid option -- 'i'" error**
-- You forgot to fix the base64 command in Part 4.1
+- You forgot to fix the base64 command in Step 4.1
 - Edit `render_hcce.sh` and remove `-i` from the base64 commands
 
 **Permission denied when running scripts**
@@ -593,7 +663,7 @@ minikube start
 
 ---
 
-## Part 8: Cost Management (Azure Only)
+## Step 8: Cost Management (Azure Only)
 
 ### Pause Cluster (Save Money)
 

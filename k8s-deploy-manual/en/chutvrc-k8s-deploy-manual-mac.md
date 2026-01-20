@@ -1,12 +1,76 @@
 # Deploy Hubs (Chutvrc / CE) to Kubernetes: Mac Manual
 
+## Choose Your Setup Method
+
+| Option | Best For | Description                                 |
+|--------|----------|---------------------------------------------|
+| **[1. Quick Setup](#option-1-quick-setup-recommended-for-beginners)** | Beginners | Automated script handles most steps for you |
+| **[2. Manual Setup](#option-2-manual-setup-instructions)** | Advanced users | Full control over each step                 |
+
+---
+
+## Option 1: Quick Setup (Recommended for Beginners)
+
+### Before You Start: Install Docker Desktop
+
+The setup script cannot install Docker Desktop for you. Please install it first:
+
+1. Go to https://www.docker.com/products/docker-desktop/
+2. Click "Download for Mac" (choose **Apple Chip** or **Intel** based on your Mac)
+3. Open the downloaded `.dmg` file and drag Docker to Applications
+4. Open Docker from your Applications folder
+5. Wait for Docker to start (you'll see a whale icon in your menu bar)
+6. Click the whale icon > **Settings** (gear icon) > **Kubernetes**
+7. Check **"Enable Kubernetes"**
+8. Click **"Apply & Restart"**
+9. Wait for both Docker and Kubernetes to show green/running status
+
+> **Note:** The first time you enable Kubernetes, it may take several minutes.
+
+### Download the Code
+
+**Option A: Download as ZIP (Easiest)**
+
+1. Go to https://github.com/pf-hubs/chutvrc-hubs-cloud
+2. Click the green **"Code"** button
+3. Click **"Download ZIP"**
+4. Open the downloaded ZIP file to extract it
+5. You'll have a folder called `chutvrc-hubs-cloud` (or similar)
+
+**Option B: Clone with Git (if you have Git installed)**
+
+Open Terminal (`Cmd + Space`, type "Terminal", press Enter) and run:
+```bash
+cd ~
+git clone https://github.com/pf-hubs/chutvrc-hubs-cloud.git
+```
+
+### Run the Quick Setup Script
+
+1. Open Finder and navigate to the `community-edition` folder inside the downloaded folder
+2. Double-click **`setup_mac.command`**
+3. Follow the on-screen prompts
+
+The script will automatically:
+- Install required tools (Homebrew, kubectl, mkcert, Node.js)
+- Configure your hosts file
+- Set up SSL certificates
+- Guide you through SMTP configuration
+- Deploy Hubs locally
+
+If you prefer to follow the manual steps, continue reading below.
+
+---
+
+## Option 2: Manual Setup Instructions
+
 This guide covers deploying Mozilla Hubs (Community Edition or Chutvrc version) to either a **Local Mac Environment** (using Docker Desktop) or **Microsoft Azure AKS**.
 
 > **New to the terminal?** Don't worry! This guide will walk you through every step. Commands you need to type are shown in gray boxes. Just copy and paste them into your terminal.
 
 ---
 
-## Part 1: Prerequisites
+## Step 1: Prerequisites
 
 ### 1.1. Opening the Terminal
 
@@ -96,7 +160,7 @@ Docker Desktop runs the Hubs application in containers.
 
 ---
 
-## Part 2: Clone the Repository
+## Step 2: Clone the Repository
 
 Now let's download the Hubs code to your computer.
 
@@ -131,7 +195,7 @@ ls
 
 ---
 
-## Part 3: Select Your Deployment Template
+## Step 3: Select Your Deployment Template
 
 We have different configuration files for different scenarios.
 
@@ -163,7 +227,7 @@ cp hcce-ce.yam hcce.yam
 
 ---
 
-## Part 4: Configure Settings
+## Step 4: Configure Settings
 
 ### 4.1. Open the Configuration File
 
@@ -214,7 +278,7 @@ Press `Cmd + S` to save, then close the editor.
 
 ---
 
-## Part 5: Environment Setup
+## Step 5: Environment Setup
 
 ### Option A: Local Setup (on your Mac)
 
@@ -241,7 +305,7 @@ To save and exit:
 2. Press `Enter` to confirm
 3. Press `Ctrl + X` to exit
 
-#### 5.2. Skip to Part 6 (Deployment)
+#### 5.2. Skip to Step 6 (Deployment)
 
 ### Option B: Azure AKS Setup
 
@@ -301,7 +365,7 @@ az aks get-credentials --resource-group HubsResourceGroup --name HubsCluster
 
 ---
 
-## Part 5.5: Verify Kubernetes Context
+## Step 5.5: Verify Kubernetes Context
 
 Before deploying, make sure kubectl is pointing to the right cluster.
 
@@ -326,7 +390,7 @@ kubectl config use-context docker-desktop
 
 ---
 
-## Part 6: Deploy
+## Step 6: Deploy
 
 ### 6.1. Deploying to Local
 
@@ -390,12 +454,12 @@ kubectl get svc -n hcce
 
 ---
 
-## Part 7: Troubleshooting
+## Step 7: Troubleshooting
 
 ### Common Problems
 
 **"command not found" errors**
-- Make sure you installed all the tools in Part 1
+- Make sure you installed all the tools in Step 1
 - Try closing and reopening Terminal
 
 **Can't access https://hubs.local**
@@ -432,7 +496,7 @@ Restart the deployment:
 
 ---
 
-## Part 8: Cost Management (Azure Only)
+## Step 8: Cost Management (Azure Only)
 
 ### Pause Cluster (Save Money)
 

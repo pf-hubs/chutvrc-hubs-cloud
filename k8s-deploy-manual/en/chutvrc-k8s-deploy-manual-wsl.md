@@ -1,14 +1,108 @@
 # Deploy Hubs (Chutvrc / CE) to Kubernetes: WSL Manual
 
-This guide covers deploying Mozilla Hubs (Community Edition or Chutvrc version) to either a **Local Environment** (using Docker Desktop with WSL2) or **Microsoft Azure AKS** from Windows Subsystem for Linux.
+## Choose Your Setup Method
 
-> **New to the terminal?** Don't worry! This guide will walk you through every step. Commands you need to type are shown in gray boxes. Just copy and paste them.
+| Option | Best For | Description                                 |
+|--------|----------|---------------------------------------------|
+| **[1. Quick Setup (WSL)](#quick-setup-recommended-for-beginners)** | Beginners | Automated script handles most steps for you |
+| **[2. Windows Setup (No WSL)](#alternative-windows-setup-without-wsl)** | Beginners | Uses native Windows tools, no WSL needed    |
+| **[3. Manual Setup](#manual-setup-instructions)** | Advanced users | Full control over each step                 |
+
+---
+
+## Option 1: Quick Setup (Recommended for Beginners)
+
+This section helps you get Hubs running locally with minimal effort. Just complete the prerequisites below, then run our setup script!
+
+### Before You Start: Prerequisites
+
+You need to install these two things first. The setup script cannot install them for you.
+
+#### 1. Install WSL2 and Ubuntu
+
+WSL lets you run Linux inside Windows. Open **PowerShell as Administrator** and run:
+
+```powershell
+wsl --install
+```
+
+After installation completes, **restart your computer**. Then open Ubuntu from the Start menu and create a username and password when prompted.
+
+> **Need more details?** See [Step 1.1](#11-install-wsl2) below for detailed instructions.
+
+#### 2. Install Docker Desktop with Kubernetes
+
+1. Download and install [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+2. During installation, make sure **"Use WSL 2 instead of Hyper-V"** is checked
+3. After installation, open Docker Desktop and go to:
+   - **Settings > Resources > WSL Integration** → Enable for Ubuntu
+   - **Settings > Kubernetes** → Check "Enable Kubernetes"
+4. Click "Apply & Restart" and wait for Kubernetes to show green status
+
+> **Need more details?** See [Step 1.2](#12-install-docker-desktop) and [Step 1.3](#13-enable-docker-wsl-integration) below.
+
+#### 3. Prepare SMTP Credentials (for login emails)
+
+Hubs sends magic link emails for login. You'll need SMTP credentials ready. For Gmail:
+1. Enable 2-Step Verification in your Google Account
+2. Create an App Password at: Google Account > Security > App passwords
+3. Save the 16-character password - you'll enter it during setup
+
+### Run the Quick Setup Script
+
+Once prerequisites are ready, open **Ubuntu** terminal and run these commands:
+
+```bash
+# Download the code (skip if you already have it)
+cd ~
+git clone https://github.com/pf-hubs/chutvrc-hubs-cloud.git
+
+# Go to the community-edition folder
+cd chutvrc-hubs-cloud/community-edition
+
+# Run the setup script
+chmod +x setup_wsl.sh && ./setup_wsl.sh
+```
+
+The script will guide you through:
+- Installing required tools (kubectl, mkcert, Node.js, etc.)
+- Setting up SSL certificates
+- **Importing CA certificate to Windows** (follow the on-screen instructions carefully!)
+- Configuring the Windows hosts file
+- Entering your SMTP settings
+- Deploying Hubs
+
+### After Setup Completes
+
+1. **Close your browser completely** (all windows)
+2. Open your browser and go to: **https://hubs.local**
+3. You should see the Hubs homepage!
+
+> **SSL Warning?** Make sure you followed the CA certificate import step during setup. You may need to restart your browser.
+
+---
+
+## Option 2: Windows Setup (Without WSL)
+
+If you prefer not to use WSL at all, you can use our Windows setup script instead:
+
+1. Navigate to the `community-edition` folder in File Explorer
+2. Double-click **`setup_windows.bat`**
+3. Follow the on-screen prompts
+
+---
+
+## Option 3: Manual Setup Instructions
+
+The rest of this guide provides detailed manual instructions if you prefer to understand and control each step, or if you encounter issues with the quick setup.
+
+> **New to the terminal?** Don't worry! Commands you need to type are shown in gray boxes. Just copy and paste them.
 
 > **Why WSL?** WSL (Windows Subsystem for Linux) lets you run Linux on Windows. The deployment scripts are written for Linux/bash, so they work perfectly in WSL without any modifications.
 
 ---
 
-## Part 1: Prerequisites
+## Step 1: Prerequisites
 
 ### 1.1. Install WSL2
 
@@ -164,7 +258,7 @@ cd $(mkcert -CAROOT) && explorer.exe .
 
 ---
 
-## Part 2: Clone the Repository
+## Step 2: Clone the Repository
 
 Now let's download the Hubs code to your computer.
 
@@ -203,7 +297,7 @@ ls
 
 ---
 
-## Part 3: Select Your Deployment Template
+## Step 3: Select Your Deployment Template
 
 We have different configuration files for different scenarios.
 
@@ -235,7 +329,7 @@ cp hcce-ce.yam hcce.yam
 
 ---
 
-## Part 4: Configure Settings
+## Step 4: Configure Settings
 
 ### 4.1. Fix the Base64 Command (Important for WSL/Linux)
 
@@ -302,7 +396,7 @@ Also update:
 
 ---
 
-## Part 5: Environment Setup
+## Step 5: Environment Setup
 
 ### Option A: Local Setup
 
@@ -328,7 +422,7 @@ Add these lines at the bottom of the file:
 
 Save the file (Ctrl + S) and close Notepad.
 
-#### 5.2. Skip to Part 6 (Deployment)
+#### 5.2. Skip to Step 6 (Deployment)
 
 ### Option B: Azure AKS Setup
 
@@ -392,7 +486,7 @@ az aks get-credentials --resource-group HubsResourceGroup --name HubsCluster
 
 ---
 
-## Part 5.5: Verify Kubernetes Context
+## Step 5.5: Verify Kubernetes Context
 
 Before deploying, make sure kubectl is pointing to the right cluster.
 
@@ -417,7 +511,7 @@ kubectl config use-context docker-desktop
 
 ---
 
-## Part 6: Deploy
+## Step 6: Deploy
 
 ### 6.1. Deploying to Local
 
@@ -443,7 +537,7 @@ Wait for the deployment to complete. You'll see messages about creating certific
 
 > **Note:** The first time may take a minute as all services start up.
 
-> **SSL Warning?** If you see an SSL warning, make sure you completed Part 1.5 (importing the CA certificate to Windows).
+> **SSL Warning?** If you see an SSL warning, make sure you completed Step 1.5 (importing the CA certificate to Windows).
 
 ### 6.2. Deploying to Azure
 
@@ -488,12 +582,12 @@ kubectl get svc -n hcce
 
 ---
 
-## Part 7: Troubleshooting
+## Step 7: Troubleshooting
 
 ### Common Problems
 
 **"command not found" errors**
-- Make sure you installed all the tools in Part 1
+- Make sure you installed all the tools in Step 1
 - Try closing and reopening the Ubuntu terminal
 
 **Can't access https://hubs.local**
@@ -504,7 +598,7 @@ kubectl get svc -n hcce
 - Check that you added the hosts file entries to the **Windows** hosts file
 
 **SSL Certificate Not Trusted (browser warning)**
-- Make sure you completed Part 1.5 (importing the CA certificate to Windows)
+- Make sure you completed Step 1.5 (importing the CA certificate to Windows)
 - Try closing and reopening your browser completely
 
 **503 Error**
@@ -517,7 +611,7 @@ kubectl get svc -n hcce
 - For Gmail, make sure you're using an App Password, not your regular password
 
 **"base64: invalid option -- 'i'" error**
-- You forgot to fix the base64 command in Part 4.1
+- You forgot to fix the base64 command in Step 4.1
 - Edit `render_hcce.sh` and remove `-i` from the base64 commands
 
 ### Useful Commands
@@ -539,7 +633,7 @@ Restart the deployment:
 
 ---
 
-## Part 8: Cost Management (Azure Only)
+## Step 8: Cost Management (Azure Only)
 
 ### Pause Cluster (Save Money)
 

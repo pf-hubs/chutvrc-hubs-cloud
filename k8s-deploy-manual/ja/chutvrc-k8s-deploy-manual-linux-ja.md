@@ -1,12 +1,82 @@
 # Hubs (Chutvrc / CE) を Kubernetes にデプロイ: Linux マニュアル
 
+## セットアップ方法を選択
+
+| オプション | 対象者 | 説明                          |
+|--------|----------|-----------------------------|
+| **[1. クイックセットアップ](#オプション-1-クイックセットアップ初心者におすすめ)** | 初心者 | 自動スクリプトがほとんどの手順を処理          |
+| **[2. 手動セットアップ](#オプション-2-手動セットアップ)** | 上級者 | 各ステップを完全にコントロール             |
+
+---
+
+## オプション 1: クイックセットアップ（初心者におすすめ）
+
+### 始める前に：Docker と Kubernetes のインストール
+
+セットアップスクリプトでは Docker をインストールできません。先に Docker と Kubernetes をセットアップしてください。
+
+**オプション A: Docker Desktop for Linux（最も簡単）**
+
+1. https://www.docker.com/products/docker-desktop/ にアクセス
+2. `.deb`（Ubuntu/Debian）または `.rpm`（Fedora）パッケージをダウンロード
+3. パッケージをインストール：
+   - Ubuntu/Debian: `sudo apt install ./docker-desktop-<version>.deb`
+   - Fedora: `sudo dnf install ./docker-desktop-<version>.rpm`
+4. アプリケーションメニューから Docker Desktop を開く
+5. **Settings** > **Kubernetes** に移動
+6. **「Enable Kubernetes」**にチェック
+7. **「Apply & Restart」**をクリック
+8. Kubernetes が緑色/実行中のステータスになるまで待つ
+
+**オプション B: Docker Engine + minikube**
+
+1. Docker Engine をインストール: https://docs.docker.com/engine/install/
+2. minikube をインストール：
+   ```bash
+   curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+   sudo install minikube-linux-amd64 /usr/local/bin/minikube
+   ```
+3. minikube を起動：
+   ```bash
+   minikube start
+   ```
+
+### クイックセットアップスクリプトを実行
+
+ターミナルを開いて以下のコマンドを実行：
+
+```bash
+# コードをダウンロード（すでにある場合はスキップ）
+cd ~
+git clone https://github.com/pf-hubs/chutvrc-hubs-cloud.git
+
+# community-edition フォルダに移動
+cd chutvrc-hubs-cloud/community-edition
+
+# セットアップスクリプトを実行
+chmod +x setup_linux.sh && ./setup_linux.sh
+```
+
+スクリプトが自動的に行うこと：
+- ディストリビューションに応じた必要なツールのインストール（kubectl、mkcert、Node.js）
+- hosts ファイルの設定
+- SSL 証明書のセットアップ
+- SMTP 設定のガイド
+- Hubs のローカルデプロイ
+
+手動で設定する場合は、以下の手順に従ってください。
+
+---
+
+## オプション 2: 手動セットアップ
+
 このガイドでは、Mozilla Hubs（Community Edition または Chutvrc バージョン）を **ローカル Linux 環境**（Kubernetes 対応 Docker 使用）または **Microsoft Azure AKS** にデプロイする方法を説明します。
 
 > **ターミナル初心者の方へ:** ご安心ください！このガイドでは、すべての手順を詳しく説明します。入力するコマンドはグレーのボックスに表示されます。コピーしてターミナルに貼り付けるだけです。
 
 ---
 
-## パート 1: 前提条件
+## ステップ 1: 前提条件
 
 ### 1.1. ターミナルを開く
 
@@ -199,7 +269,7 @@ kind create cluster
 
 ---
 
-## パート 2: リポジトリのクローン
+## ステップ 2: リポジトリのクローン
 
 Hubs のコードをコンピュータにダウンロードしましょう。
 
@@ -234,7 +304,7 @@ ls
 
 ---
 
-## パート 3: デプロイテンプレートの選択
+## ステップ 3: デプロイテンプレートの選択
 
 異なるシナリオ用の設定ファイルがあります。
 
@@ -266,7 +336,7 @@ cp hcce-ce.yam hcce.yam
 
 ---
 
-## パート 4: 設定の構成
+## ステップ 4: 設定の構成
 
 ### 4.1. base64 コマンドの修正（Linux では重要）
 
@@ -335,7 +405,7 @@ export ADM_EMAIL="your-email@example.com"
 
 ---
 
-## パート 5: 環境セットアップ
+## ステップ 5: 環境セットアップ
 
 ### オプション A: ローカルセットアップ
 
@@ -362,7 +432,7 @@ sudo nano /etc/hosts
 2. `Enter` を押す
 3. `Ctrl + X` を押す
 
-#### 5.2. パート 6（デプロイ）に進む
+#### 5.2. ステップ 6（デプロイ）に進む
 
 ### オプション B: Azure AKS セットアップ
 
@@ -436,7 +506,7 @@ az aks get-credentials --resource-group HubsResourceGroup --name HubsCluster
 
 ---
 
-## パート 5.5: Kubernetes コンテキストの確認
+## ステップ 5.5: Kubernetes コンテキストの確認
 
 デプロイ前に、kubectl が正しいクラスターを指しているか確認してください。
 
@@ -463,7 +533,7 @@ kubectl config use-context docker-desktop
 
 ---
 
-## パート 6: デプロイ
+## ステップ 6: デプロイ
 
 ### 6.1. ローカルへのデプロイ
 
@@ -532,12 +602,12 @@ kubectl get svc -n hcce
 
 ---
 
-## パート 7: トラブルシューティング
+## ステップ 7: トラブルシューティング
 
 ### よくある問題
 
 **「command not found」エラー**
-- パート 1 ですべてのツールをインストールしたか確認
+- ステップ 1 ですべてのツールをインストールしたか確認
 - ターミナルを閉じて再度開いてみる
 - コマンドが PATH にあるか確認：`which <command>`
 
@@ -558,7 +628,7 @@ kubectl get svc -n hcce
 - Gmail の場合、通常のパスワードではなくアプリパスワードを使用しているか確認
 
 **「base64: invalid option -- 'i'」エラー**
-- パート 4.1 で base64 コマンドの修正を忘れています
+- ステップ 4.1 で base64 コマンドの修正を忘れています
 - `render_hcce.sh` を編集して base64 コマンドから `-i` を削除してください
 
 **スクリプト実行時に Permission denied**
@@ -593,7 +663,7 @@ minikube start
 
 ---
 
-## パート 8: コスト管理（Azure のみ）
+## ステップ 8: コスト管理（Azure のみ）
 
 ### クラスターを一時停止（節約）
 
